@@ -18,6 +18,7 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+- Sessions: prune stale entries, cap session store size, rotate large stores, accept duration/size thresholds, default to warn-only maintenance, and prune cron run sessions after retention windows. (#13083) Thanks @skyfallsin, @Glucksberg, @gumadeiras.
 - CI: Implement pipeline and workflow order. Thanks @quotentiroler.
 - WhatsApp: preserve original filenames for inbound documents. (#12691) Thanks @akramcodez.
 - Telegram: harden quote parsing; preserve quote context; avoid QUOTE_TEXT_INVALID; avoid nested reply quote misclassification. (#12156) Thanks @rybnikov.
@@ -31,6 +32,7 @@ Docs: https://docs.openclaw.ai
 - Auth: strip embedded line breaks from pasted API keys and tokens before storing/resolving credentials.
 - Web UI: make chat refresh smoothly scroll to the latest messages and suppress new-messages badge flash during manual refresh.
 - Tools/web_search: include provider-specific settings in the web search cache key, and pass `inlineCitations` for Grok. (#12419) Thanks @tmchow.
+- Tools/web_search: fix Grok response parsing for xAI Responses API output blocks. (#13049) Thanks @ereid7.
 - Tools/web_search: normalize direct Perplexity model IDs while keeping OpenRouter model IDs unchanged. (#12795) Thanks @cdorsey.
 - Model failover: treat HTTP 400 errors as failover-eligible, enabling automatic model fallback. (#1879) Thanks @orenyomtov.
 - Errors: prevent false positive context overflow detection when conversation mentions "context overflow" topic. (#2078) Thanks @sbking.
@@ -53,6 +55,7 @@ Docs: https://docs.openclaw.ai
 - Discord: support forum/media thread-create starter messages, wire `message thread create --message`, and harden routing. (#10062) Thanks @jarvis89757.
 - Paths: structurally resolve `OPENCLAW_HOME`-derived home paths and fix Windows drive-letter handling in tool meta shortening. (#12125) Thanks @mcaxtr.
 - Memory: set Voyage embeddings `input_type` for improved retrieval. (#10818) Thanks @mcinteerj.
+- Memory: disable async batch embeddings by default for memory indexing (opt-in via `agents.defaults.memorySearch.remote.batch.enabled`). (#13069) Thanks @mcinteerj.
 - Memory/QMD: reuse default model cache across agents instead of re-downloading per agent. (#12114) Thanks @tyler6204.
 - Media understanding: recognize `.caf` audio attachments for transcription. (#10982) Thanks @succ985.
 - State dir: honor `OPENCLAW_STATE_DIR` for default device identity and canvas storage paths. (#4824) Thanks @kossoy.
