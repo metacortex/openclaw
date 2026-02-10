@@ -181,13 +181,36 @@ export async function preflightDiscordMessage(
     }
   }
 
-  const botId = params.botUserId;
+  const botId = params.botUserId || "1467814381424476287";
   const baseText = resolveDiscordMessageText(message, {
     includeForwarded: false,
   });
-  const messageText = resolveDiscordMessageText(message, {
+  let messageText = resolveDiscordMessageText(message, {
     includeForwarded: true,
   });
+
+  // Append referenced message content if the bot is mentioned in a reply
+  if (
+    botId &&
+    message.reference &&
+    message.mentionedUsers?.some((u: User) => u.id === botId)
+  ) {
+    const parentMessage = message.referencedMessage;
+    if (parentMessage) {
+      const parentText = resolveDiscordMessageText(parentMessage, {
+        includeForwarded: true,
+      });
+      if (parentText) {
+        const parentAuthor = parentMessage.author
+          ? formatDiscordUserTag(parentMessage.author)
+          : null;
+        const header = parentAuthor
+          ? `[Reply to ${parentAuthor}]`
+          : `[Reply to message]`;
+        messageText = `${messageText}\n\n${header}\n${parentText}`;
+      }
+    }
+  }
   recordChannelActivity({
     channel: "discord",
     accountId: params.accountId,
