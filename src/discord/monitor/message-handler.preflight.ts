@@ -466,6 +466,65 @@ export async function preflightDiscordMessage(
     commandAuthorized,
   });
   const effectiveWasMentioned = mentionGate.effectiveWasMentioned;
+
+  // [Custom Filter] Skip agent processing based on conditions but preserve history
+  let shouldSkipCustom = false;
+  let customSkipReason = "";
+  let commandText = "";
+
+  if (isDirectMessage) {
+    // 1. DM: Sender ID check
+    // if (author.id !== "107044843326283776") {
+    //   shouldSkipCustom = true;
+    //   customSkipReason = "sender ID mismatch"; // baseText
+    // }
+  } else if (effectiveWasMentioned) {
+    // 2. Mention: Keyword check
+    // if (messageText.includes("[skip]") || messageText.includes("ignore_me")) {
+    //   shouldSkipCustom = true;
+    //   customSkipReason = "keyword match";
+    // }
+  } else {
+    // 3. Non-mention: Channel check
+    const registerChannel = "1469240086343323816";
+    const allowedChannels = [
+      "1469230622387081256", // agent-submit
+      "1469233827305226383", // external-meeting
+      "1469233899858034719", // team-meeting
+      // "1470361161139622036", // agent-test
+      "1470635567007142060", // agent-monitor-test
+    ];
+
+    if (message.channelId === registerChannel) {
+      // register command only in register channel
+      if (!baseText.toLowerCase().startsWith("register ")) {
+        shouldSkipCustom = true;
+        customSkipReason = "not register command";
+      }
+    } else if (allowedChannels.includes(message.channelId)) {
+      // command
+      if (!baseText.startsWith("!note <<") && !baseText.endsWith(">> !note")) {
+        commandText = ">> !note";
+      }
+    } else {
+      // other channels are not allowed
+      shouldSkipCustom = true;
+      customSkipReason = "channel not allowed";
+    }
+  }
+
+  if (shouldSkipCustom) {
+    logVerbose(`discord: drop message custom (${customSkipReason || "filtered"})`);
+    recordPendingHistoryEntryIfEnabled({
+      historyMap: params.guildHistories,
+      historyKey: message.channelId,
+      limit: params.historyLimit,
+      entry: historyEntry ?? null,
+    });
+    return null;
+  }
+  // [End Custom Filter]
+
   if (isGuildMessage && shouldRequireMention) {
     if (botId && mentionGate.shouldSkip) {
       logVerbose(`discord: drop guild message (mention required, botId=${botId})`);
@@ -547,8 +606,8 @@ export async function preflightDiscordMessage(
     isDirectMessage,
     isGroupDm,
     commandAuthorized,
-    baseText,
-    messageText,
+    baseText: baseText + commandText,
+    messageText: messageText + commandText,
     wasMentioned,
     route,
     guildInfo,
