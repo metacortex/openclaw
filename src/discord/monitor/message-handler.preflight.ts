@@ -511,11 +511,11 @@ export async function preflightDiscordMessage(
     // 3. Non-mention: Channel check
     const registerChannel = "1469240086343323816";
     const allowedChannels = [
-      "1469230622387081256", // agent-submit
-      "1469233827305226383", // external-meeting
-      "1469233899858034719", // team-meeting
-      // "1470361161139622036", // agent-test
-      "1470635567007142060", // agent-monitor-test
+      // "1469230622387081256", // agent-submit
+      // "1469233827305226383", // external-meeting
+      // "1469233899858034719", // team-meeting
+      // // "1470361161139622036", // agent-test
+      // "1470635567007142060", // agent-monitor-test
     ];
 
     if (message.channelId === registerChannel) {
